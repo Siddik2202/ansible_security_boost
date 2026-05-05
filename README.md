@@ -1,3 +1,5 @@
+## Managing configuration drift and patching critical vulnerabilities (OpenSSL) across 200+ instances while ensuring zero downtime.
+
 Role Name
 =========
 
