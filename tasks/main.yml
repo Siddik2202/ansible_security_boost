@@ -1,0 +1,33 @@
+# filename: roles/security_fix/tasks/main.yml
+---
+- name: 1. Update Package Cache (Apt-get update)
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: 2. Patch Vulnerable Package (e.g., OpenSSL)
+  ansible.builtin.package:
+    name: openssl
+    state: latest
+  register: patch_result
+
+- name: 3. Disable SSH Root Login (CIS Hardening)
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: Restart SSH
+
+- name: 4. Ensure Auto-Security Updates are Enabled
+  ansible.builtin.package:
+    name: unattended-upgrades
+    state: present
+
+- name: 5. Verification - Check if OpenSSL is patched
+  ansible.builtin.shell: openssl version
+  register: openssl_ver
+  changed_when: false
+
+- name: 6. Display Version for Audit Report
+  ansible.builtin.debug:
+    msg: "Node {{ inventory_hostname }} is now running {{ openssl_ver.stdout }}"
